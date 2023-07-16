@@ -1,0 +1,14 @@
+{
+    "system": "",
+    "instruction": "\n\nUSER:{maybe_space}{text}",
+    "response": "\n\nASSISTANT:{maybe_space}{text}",
+
+    "card": "USER: {desc}\n\nASSISTANT: Okay. I will take that info into account to roleplay as {{{{char}}}}.",
+    "example_chats": "\n\nUSER: Here are some old roleplays that we did before.{examples}",
+    "new_example_chat": "",
+    "new_chat": "\n\nUSER: Let's start a new roleplay.",
+    "user_msg": "\n\nUSER:{maybe_space}{msg}",
+    "char_msg": "\n\nASSISTANT:{maybe_space}{msg}",
+
+    "stop_sequences": ["\nUSER:", "\nASSISTANT:"]
+}

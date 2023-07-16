@@ -1,0 +1,14 @@
+{
+    "system": "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.",
+    "instruction": " ASSISTANT:{maybe_space}{text}",
+    "response": " USER:{maybe_space}{text}",
+
+    "card": " USER: You're \"{{{{char}}}}\" in this never-ending roleplay with \"{{{{user}}}}\".\n### Input:\n{desc} ASSISTANT: (OOC) Understood. I will take this info into account to roleplay as {{{{char}}}}. (end OOC)",
+    "example_chats": "{examples}",
+    "new_example_chat": " USER: (OOC) Let's start a new roleplay. (end OOC)",
+    "new_chat": " USER: (OOC) Let's start a new roleplay. (end OOC)",
+    "user_msg": " USER: {name}:{maybe_space}{msg}",
+    "char_msg": " ASSISTANT: {name}:{maybe_space}{msg}",
+
+    "stop_sequences": [" USER: ", " ASSISTANT: ", "{{user}}:"]
+}

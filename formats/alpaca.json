@@ -1,0 +1,14 @@
+{
+    "system": "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.",
+    "instruction": "\n### Instruction:\n{text}",
+    "response": "\n### Response:\n{text}",
+
+    "card": "\n### Instruction:\nYou're \"{{{{char}}}}\" in this never-ending roleplay with \"{{{{user}}}}\".\n### Input:\n{desc}\n### Response:\n(OOC) Understood. I will take this info into account to roleplay as {{{{char}}}}. (end OOC)",
+    "example_chats": "{examples}",
+    "new_example_chat": "\n### Instruction:\n(OOC) Let's start a new roleplay. (end OOC)",
+    "new_chat": "\n### Instruction:\n(OOC) Let's start a new roleplay. (end OOC)",
+    "user_msg": "\n### Instruction:\n#### {name}:\n{msg}",
+    "char_msg": "\n### Response:\n#### {name}:\n{msg}",
+
+    "stop_sequences": ["\n##"]
+}
