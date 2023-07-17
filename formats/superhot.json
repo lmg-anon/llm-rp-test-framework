@@ -3,7 +3,7 @@
     "instruction": "---\n{text}\n---",
     "response": "\n",
 
-    "card": "---\nmode: roleplay context\n{desc}\n---\n",
+    "card": "---\nmode: roleplay context\n{desc}\n---",
     "example_chats": "{examples}",
     "new_example_chat": "\n---\nmode: new roleplay\n---",
     "new_chat": "\n---\nmode: new roleplay\n---",
