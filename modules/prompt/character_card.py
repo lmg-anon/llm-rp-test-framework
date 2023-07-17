@@ -19,14 +19,16 @@ class CharacterCard:
         self.example_messages: list[ChatLog] = []
 
     def read_json(self, json: dict):
-        self.name = json["name"]
-        self.description = json["description"]
-        self.greeting = ChatMessage(self.name, False, json["first_mes"])
+        self.name = json["name"].strip()
+        self.description = json["description"].strip()
+        self.greeting = ChatMessage(self.name, False, json["first_mes"].strip())
         self.example_messages = []
         examples = filter(None, re.split("<start>", json["mes_example"], flags=re.IGNORECASE))
         for example in examples:
+            if not example.strip():
+                continue
             log = ChatLog(self)
-            log.read(example)
+            log.read(example.strip())
             self.example_messages.append(log)
 
     def load(self, file_path: str):
@@ -80,4 +82,4 @@ class CharacterCard:
         if self.example_messages:
             examples += prompt_format["new_example_chat"]
             examples += prompt_format["new_example_chat"].join([msg.to_string(prompt_format["user_msg"], prompt_format["char_msg"]) for msg in self.example_messages])
-        return prompt_format["card"].format(desc=self.description) + prompt_format["example_chats"].format(examples=examples) if examples else ""
+        return prompt_format["card"].format(desc=self.description) + (prompt_format["example_chats"].format(examples=examples) if examples else "")

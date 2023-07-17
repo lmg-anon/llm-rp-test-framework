@@ -3,12 +3,12 @@
     "instruction": "---\n{text}\n---",
     "response": "\n",
 
-    "card": "---\nmode: roleplay\n{desc}\n---",
+    "card": "---\nmode: roleplay context\n{desc}\n---\n",
     "example_chats": "{examples}",
-    "new_example_chat": "\n---\nmode: roleplay\n---",
-    "new_chat": "\n---\nmode: roleplay\n---",
-    "user_msg": "\n{name}:{maybe_space}{msg}",
-    "char_msg": "\n{name}:{maybe_space}{msg}",
+    "new_example_chat": "\n---\nmode: new roleplay\n---",
+    "new_chat": "\n---\nmode: new roleplay\n---",
+    "user_msg": "\n{name}:\n{msg}",
+    "char_msg": "\n{name}:\n{msg}",
 
     "stop_sequences": ["\n---", "\n{{user}}:", "\n{{char}}:"]
 }

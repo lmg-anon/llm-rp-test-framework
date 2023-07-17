@@ -29,8 +29,16 @@ class RoleplayPrompt(Prompt):
         self.chat_log.add_message(sender, msg, is_user)
 
     def to_string(self) -> str:
-        value = self.format["system"]
+        value: str = self.format["system"]
         value += self.card.to_string(self.format)
         value += self.format["new_chat"]
         value += self.chat_log.to_string(self.format["user_msg"], self.format["char_msg"])
+        value = value.replace("\r\n", "\n")
+
+        # Merge consecutive linebreaks into one to mimic the simple-proxy behavior
+        replaced_value = value.replace("\n\n", "\n")
+        while replaced_value != value:
+            value = replaced_value
+            replaced_value = value.replace("\n\n", "\n")
+
         return value.replace("{{char}}", self.card.name).replace("<BOT>", self.card.name).replace("{{user}}", self.user_name).replace("<USER>", self.user_name)
