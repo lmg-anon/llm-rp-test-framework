@@ -1,6 +1,6 @@
 # RP Test Framework
 
-This is a project that aims to make it easier to evaluate large language models capabilities at roleplaying with different presets/formats.
+This is a project that aims to make it easier to evaluate the capabilities of large language models at roleplaying with different presets/formats.
 
 This project is still very experimental right now and doesn't feature many tests, any feedback and contributions are welcome.
 

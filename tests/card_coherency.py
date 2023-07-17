@@ -18,7 +18,7 @@ def ask_for_age(model: LanguageModel, prompt: RoleplayPrompt, long_context: bool
         prompt.add_messages_from_file("characters/Rin Tohsaka.jsonl")
 
     prompt.add_message("Jin", "\"Hey, what is your age?\"")
-    prompt.add_message(prompt.card.name, "\"Huh, what kind of question is this? I'm")
+    prompt.add_message(card.name, "\"Huh, what kind of question is this? I'm")
 
     result = model.generate(prompt, max_iter=1)
     if any(word in result.lower() for word in ["18", "eighteen"]):
@@ -57,7 +57,7 @@ def ask_for_school_name(model: LanguageModel, prompt: RoleplayPrompt, long_conte
         prompt.add_messages_from_file("characters/Rin Tohsaka.jsonl")
 
     prompt.add_message("Jin", "\"Hey, what is the name of our school again?\"")
-    prompt.add_message(prompt.card.name, "\"Huh, what kind of question is this? You know very well it's called")
+    prompt.add_message(card.name, "\"Huh, what kind of question is this? You know very well it's called")
 
     result = model.generate(prompt, max_iter=1)
     if "homur" in result.lower():
@@ -75,7 +75,7 @@ def example_clues(model: LanguageModel, prompt: RoleplayPrompt) -> bool:
     prompt.init("Jin", card, True)
 
     prompt.add_message("Jin", "*sigh*")
-    prompt.add_message(prompt.card.name, "")
+    prompt.add_message(card.name, "")
 
     result = model.generate(prompt, max_iter=5)
     if any(word in result.lower() for word in ["ignore", "tackle"]):

@@ -21,7 +21,7 @@ def csv_test(model: LanguageModel, prompt: RoleplayPrompt, card: CharacterCard, 
         max_iter = settings["max_iter"]
 
     prompt.add_message(settings["user"], test_info["message_input"])
-    prompt.add_message(prompt.card.name, test_info["message_output"])
+    prompt.add_message(card.name, test_info["message_output"])
 
     for part, output in model.generate_iter(prompt, max_iter=max_iter):
         if test_info["expected_output"] in output:
@@ -40,7 +40,7 @@ def prepare_csv_test(model: LanguageModel, prompt: RoleplayPrompt, csv_info: dic
 
         log = None
         if "log" in settings:
-            log = ChatLog(prompt.card)
+            log = ChatLog(card)
             log.load(settings["log"])
     except:
         Logger.log_event("Error", Fore.RED, "Failed to load test suite.")

@@ -18,7 +18,7 @@ def ask_for_location(model: LanguageModel, prompt: RoleplayPrompt) -> bool:
     prompt.add_messages_from_file("characters/Rin Tohsaka.jsonl")
 
     prompt.add_message("Jin", "\"Hey, where are we again? *I say as I look around*\"")
-    prompt.add_message(prompt.card.name, "\"Hm...? We are at")
+    prompt.add_message(card.name, "\"Hm...? We are at")
 
     result = model.generate(prompt, max_iter=1)
     if "my" in result.lower() and not "your" in result.lower():
@@ -43,8 +43,8 @@ def event_memory(model: LanguageModel, prompt: RoleplayPrompt) -> bool:
     prompt.add_message(card.name, "")
 
     result = str()
-    for _, output in model.generate_iter(prompt, max_iter=5):
-        if any(word in output.lower() for word in ["bucket", "water", "drench", "damp", "wet", "soak"]):
+    for _, output in model.generate_iter(prompt, max_iter=8):
+        if any(word in output.lower() for word in ["rooftop", "bucket", "water", "drench", "damp", "wet", "soak"]):
             Logger.log_event("Success", Fore.GREEN, repr(output), True)
             return True
         result = output
@@ -62,7 +62,7 @@ def follow_format(model: LanguageModel, prompt: RoleplayPrompt) -> bool:
     prompt.init("Jin", card, True)
 
     prompt.add_message("Jin", "3")
-    prompt.add_message(prompt.card.name, "")
+    prompt.add_message(card.name, "")
 
     first_part = model.generate(prompt, max_iter=1)
     if not first_part.strip().startswith("**["):
@@ -72,7 +72,7 @@ def follow_format(model: LanguageModel, prompt: RoleplayPrompt) -> bool:
     # result = str()
     # for _, output in model.generate_iter(prompt):
     #     result = output
-    result = model.generate(prompt, -1)
+    result = model.generate(prompt)
     g_ayre_replies.append(result)
 
     pattern_start = r"^\*\*\[.*?\] \/ \[Ayre's room\] \/ \[Casual dress with stockings and low pumps\] \/ \[Affection: \d+\/\d+\] \/ \[Breasts: .*?\]\*\*"
@@ -95,7 +95,7 @@ def understand_options(model: LanguageModel, prompt: RoleplayPrompt, secondary_m
     prompt.init("Jin", card, True)
 
     prompt.add_message("Jin", "3") # 3. With a seductive smile, slowly approach her.
-    prompt.add_message(prompt.card.name, "")
+    prompt.add_message(card.name, "")
 
     result = g_ayre_replies.pop() if g_ayre_replies else ""
     if not result:
@@ -116,7 +116,7 @@ def understand_options(model: LanguageModel, prompt: RoleplayPrompt, secondary_m
             return True
 
     if secondary_model is not None and secondary_prompt is not None:
-        # We couldn't deduce if the answer was blunt from the simple check...
+        # We couldn't deduce if the answer was seductive from the simple check...
         # Let's use a secondary model to verify the answer.
         Logger.log(f"Questioning secondary model about correctness of output: {repr(result)}", True)
 
