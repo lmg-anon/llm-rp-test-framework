@@ -25,9 +25,9 @@ Next you will need to create a file `test_plan.json`, you can just edit the `tes
 
 | Argument | Description |
 | --- | --- |
-| model_backend | What will be used for inference (Currently supported: "llamacpp", "koboldcpp", "llamapy") |
-| model_backend_host | The host to connect when using the llamacpp/koboldcpp backend, if not specified a new process will be started. |
-| model_backend_path | The path to the backend server executable. Only applicable for llamacpp/koboldcpp backends, only necessary when "model_backend_host" is not specified. |
+| model_backend | What will be used for inference (Currently supported: "llamacpp", "koboldcpp", "ooba", "llamapy") |
+| model_backend_host | The host to connect when using the llamacpp/koboldcpp/ooba backend, if not specified a new process will be started. |
+| model_backend_path | The path to the backend server executable. Only applicable for llamacpp/koboldcpp/ooba backends, only necessary when "model_backend_host" is not specified. |
 | model_path | The path to the large language model weights. Only necessary when "model_backend_host" is not specified. |
 | model_format | The prompt format that will be used for the model. It must be one of the files inside the "formats" folder without it's extension. |
 | model_preset | The configuration preset that will be used for the inference. It must be one of the files inside the "presets" folder without it's extension. (Default: default) |
@@ -55,9 +55,10 @@ The `test_runner.py` script is just a simple helper over the main script, you ca
 
 ```bash
 usage: main.py [-h] [--preset PRESET] [--context-size CONTEXT_SIZE] [--format FORMAT] [--lpy-model LPY_MODEL]
-               [--lcpp-host LCPP_HOST] [--kcpp-host KCPP_HOST] [--secondary-preset SECONDARY_PRESET]
-               [--secondary-format SECONDARY_FORMAT] [--lpy-secondary-model LPY_SECONDARY_MODEL]
-               [--lcpp-secondary-host LCPP_SECONDARY_HOST] [--kcpp-secondary-host KCPP_SECONDARY_HOST]
+               [--lcpp-host LCPP_HOST] [--kcpp-host KCPP_HOST] [--ooba-host OOBA_HOST]
+               [--secondary-preset SECONDARY_PRESET] [--secondary-format SECONDARY_FORMAT]
+               [--lpy-secondary-model LPY_SECONDARY_MODEL] [--lcpp-secondary-host LCPP_SECONDARY_HOST]
+               [--kcpp-secondary-host KCPP_SECONDARY_HOST] [--ooba-secondary-host OOBA_SECONDARY_HOST]
                [--passes PASSES] [--seed SEED] [--test-suite TEST_SUITE] [--test TEST] [--verbose]
 
 Roleplay Test Framework
@@ -74,6 +75,8 @@ options:
                         host for llama.cpp server
   --kcpp-host KCPP_HOST
                         host for koboldcpp
+  --ooba-host OOBA_HOST
+                        host for text-generation-webui API server
   --secondary-preset SECONDARY_PRESET
                         secondary model preset (default: precise)
   --secondary-format SECONDARY_FORMAT
@@ -84,6 +87,8 @@ options:
                         secondary host for llama.cpp server
   --kcpp-secondary-host KCPP_SECONDARY_HOST
                         secondary host for koboldcpp
+  --ooba-secondary-host OOBA_SECONDARY_HOST
+                        secondary host for text-generation-webui API server
   --passes PASSES       number of test passes (default: 5)
   --seed SEED           initial rng seed
   --test-suite TEST_SUITE

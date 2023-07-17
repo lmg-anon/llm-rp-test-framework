@@ -1,6 +1,9 @@
 import subprocess
 import json
 import signal
+import sys
+import shutil
+import os
 from dataclasses import dataclass
 
 current_process = None
@@ -15,8 +18,17 @@ class ModelParams:
     model_format: str
     model_preset: str
 
+def find_program_path(program_name):
+    """
+    Find the path of a program in the system's PATH environment variable.
+    Returns None if the program is not found.
+    """
+    return shutil.which(program_name)
+
 def get_run_command(model: ModelParams, context_size: int, thread_number: int, port: int, extra_args: str) -> str:
-    if model.model_backend == "koboldcpp":
+    if model.model_backend == "ooba":
+        command = f"\"{sys.executable}\" {model.model_backend_path} --model \"{model.model_path}\" --n_ctx {context_size} --max_seq_len {context_size} --compress_pos_emb {context_size // 2048} --threads {thread_number} --api --api-blocking-port {port} {extra_args}"
+    elif model.model_backend == "koboldcpp":
         command = f"{model.model_backend_path} --model \"{model.model_path}\" --contextsize {context_size} --threads {thread_number} --stream --port {port} {extra_args}"
     elif model.model_backend == "llamacpp":
         command = f"{model.model_backend_path} -m \"{model.model_path}\" -t {thread_number} -c {context_size} --port {port} {extra_args}"
@@ -24,11 +36,12 @@ def get_run_command(model: ModelParams, context_size: int, thread_number: int, p
         return ""
     return command
 
-
 def run_python_script(model: ModelParams, secondary_model: ModelParams | None, context_size: int, extra_args: str):
-    command = f"python main.py --format {model.model_format} --context {context_size} --preset {model.model_preset} {extra_args}"
+    command = f"\"{sys.executable}\" main.py --format {model.model_format} --context {context_size} --preset {model.model_preset} {extra_args}"
 
-    if model.model_backend == "koboldcpp":
+    if model.model_backend == "ooba":
+        command += f" --ooba-host {model.model_backend_host}"
+    elif model.model_backend == "koboldcpp":
         command += f" --kcpp-host {model.model_backend_host}"
     elif model.model_backend == "llamacpp":
         command += f" --lcpp-host {model.model_backend_host}"
@@ -38,7 +51,9 @@ def run_python_script(model: ModelParams, secondary_model: ModelParams | None, c
     if secondary_model:
         command += f" --secondary-format {secondary_model.model_format} --secondary-preset {secondary_model.model_preset}"
 
-        if secondary_model.model_backend == "koboldcpp":
+        if secondary_model.model_backend == "ooba":
+            command += f" --ooba-secondary-host {secondary_model.model_backend_host}"
+        elif secondary_model.model_backend == "koboldcpp":
             command += f" --kcpp-secondary-host {secondary_model.model_backend_host}"
         elif secondary_model.model_backend == "llamacpp":
             command += f" --lcpp-secondary-host {secondary_model.model_backend_host}"
@@ -71,7 +86,7 @@ def run_test_plan(test_plan_file):
 
     for item in test_plan:
         model_backend = item["model_backend"]
-        if model_backend not in ["koboldcpp", "llamacpp", "llamapy"]:
+        if model_backend not in ["koboldcpp", "llamacpp", "llamapy", "ooba"]:
             print(f"Invalid model_backend: {model_backend}")
             continue
 
@@ -90,7 +105,7 @@ def run_test_plan(test_plan_file):
 
         secondary_model = None
         if secondary_model_backend:
-            if model_backend not in ["koboldcpp", "llamacpp", "llamapy"]:
+            if model_backend not in ["koboldcpp", "llamacpp", "llamapy", "ooba"]:
                 print(f"Invalid secondary_model_backend: {model_backend}")
                 continue
 
@@ -116,9 +131,9 @@ def run_test_plan(test_plan_file):
                     if current_process.args != run_command:
                         current_process.terminate()
                         current_process.wait()
-                        current_process = subprocess.Popen(run_command, shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        current_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 else:
-                    current_process = subprocess.Popen(run_command, shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    current_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if secondary_model:
             if not secondary_model.model_backend_host:
@@ -130,9 +145,9 @@ def run_test_plan(test_plan_file):
                         if current_secondary_process.args != run_command:
                             current_secondary_process.terminate()
                             current_secondary_process.wait()
-                            current_secondary_process = subprocess.Popen(run_command, shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            current_secondary_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(secondary_model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                     else:
-                        current_secondary_process = subprocess.Popen(run_command, shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        current_secondary_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(secondary_model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         run_python_script(model, secondary_model, context_size, extra_args)
 

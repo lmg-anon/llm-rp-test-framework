@@ -1,5 +1,9 @@
 import re
-import png
+try:
+    import png
+    PNG_PRESENT = True
+except ModuleNotFoundError as e:
+    PNG_PRESENT = False
 import base64
 import json
 from .chat_log import ChatMessage, ChatLog
@@ -38,6 +42,9 @@ class CharacterCard:
             self.read_json(json.load(file))
 
     def _load_img(self, file_path: str):
+        if not PNG_PRESENT:
+            raise Exception("Please install the pypng library to load image files.")
+
         # Get the chunks
         chunks = list(png.Reader(file_path).chunks())
         tEXtChunks = [chunk for chunkType, chunk in chunks if chunkType == b'tEXt']

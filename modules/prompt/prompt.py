@@ -3,7 +3,7 @@ import abc
 __all__ = ("Prompt",)
 
 
-class Prompt:
+class Prompt(abc.ABC):
     def __init__(self, format: dict):
         self.format = format
 

@@ -29,34 +29,20 @@ class LcppModel(LanguageModel):
                 continue
 
     def _convert_data(self, data: dict, stream: bool = False) -> dict:
-        if "max_context_length" in data:
-            data["n_ctx"] = data["max_context_length"]
-            del data["max_context_length"]
-        if "max_tokens" in data:
-            data["n_predict"] = data["max_tokens"]
-            del data["max_tokens"]
-        if "max_length" in data:
-            data["n_predict"] = data["max_length"]
-            del data["max_length"]
-        if "rep_pen" in data:
-            data["repeat_penalty"] = data["rep_pen"]
-            del data["rep_pen"]
-        if "rep_pen_range" in data:
-            data["repeat_last_n"] = data["rep_pen_range"]
-            del data["rep_pen_range"]
-        if "tfs" in data:
-            data["tfs_z"] = data["tfs"]
-            del data["tfs"]
-        if "typical" in data:
-            data["typical_p"] = data["typical"]
-            del data["typical"]
-        if "sampler_seed" in data:
-            data["seed"] = data["sampler_seed"]
-            del data["sampler_seed"]
-        if "stop_sequence" in data:
-            data["stop"] = data["stop_sequence"]
-            del data["stop_sequence"]
-        else:
+        def rename_dict_key(lhs: str, rhs: str):
+            if lhs in data:
+                data[rhs] = data[lhs]
+                del data[lhs]
+        rename_dict_key("max_context_length", "n_ctx")
+        rename_dict_key("max_tokens", "n_predict")
+        rename_dict_key("max_length", "n_predict")
+        rename_dict_key("rep_pen", "repeat_penalty")
+        rename_dict_key("rep_pen_range", "repeat_last_n")
+        rename_dict_key("tfs", "tfs_z")
+        rename_dict_key("typical", "typical_p")
+        rename_dict_key("sampler_seed", "seed")
+        rename_dict_key("stop_sequence", "stop")
+        if "stop" not in data:
             data["stop"] = []
         data["n_keep"] = -1
         return data
@@ -72,7 +58,7 @@ class LcppModel(LanguageModel):
             try:
                 response = requests.post(f"http://{self.lcpp_host}/completion", data=json.dumps(data), headers={'Content-Type': 'application/json'})
             except Exception as e:
-                Logger.log_event("Error", Fore.RED, f"Model backend is offline.")
+                Logger.log_event("Error", Fore.RED, f"{self.get_identifier()} is offline.")
                 exit(-1)
 
             if response.status_code == 503 or response.status_code == 400: # Server busy.

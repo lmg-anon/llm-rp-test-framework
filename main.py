@@ -2,7 +2,7 @@ from typing import Callable
 from tqdm import tqdm
 from colorama import Fore, init as colorama_init
 from modules.model import LanguageModel
-from modules.model.backends import KcppModel, LcppModel, LPY_PRESENT
+from modules.model.backends import KcppModel, LcppModel, LPY_PRESENT, OobaModel
 if LPY_PRESENT:
     from modules.model.backends import LpyModel
 from modules.prompt.styles import *
@@ -88,6 +88,7 @@ if __name__ == "__main__":
         parser.add_argument("--lpy-model", type=str, help="model path for llama.py")
     parser.add_argument("--lcpp-host", type=str, help="host for llama.cpp server")
     parser.add_argument("--kcpp-host", type=str, help="host for koboldcpp")
+    parser.add_argument("--ooba-host", type=str, help="host for text-generation-webui API server")
 
     parser.add_argument("--secondary-preset", type=str, help="secondary model preset (default: precise)")
     parser.add_argument("--secondary-format", type=str, help="secondary model prompt format (default: alpaca)")
@@ -95,6 +96,7 @@ if __name__ == "__main__":
         parser.add_argument("--lpy-secondary-model", type=str, help="secondary model path for llama.py")
     parser.add_argument("--lcpp-secondary-host", type=str, help="secondary host for llama.cpp server")
     parser.add_argument("--kcpp-secondary-host", type=str, help="secondary host for koboldcpp")
+    parser.add_argument("--ooba-secondary-host", type=str, help="secondary host for text-generation-webui API server")
 
     parser.add_argument("--passes", type=int, help="number of test passes (default: 5)")
     parser.add_argument("--seed", type=int, help="initial rng seed")
@@ -124,8 +126,10 @@ if __name__ == "__main__":
         model = LcppModel(args.lcpp_host, args.context_size if args.context_size else 2048)
     elif args.kcpp_host:
         model = KcppModel(args.kcpp_host, args.context_size if args.context_size else 2048)
+    elif args.ooba_host:
+        model = OobaModel(args.ooba_host, args.context_size if args.context_size else 2048)
     else:
-        Logger.log_event("Error", Fore.RED, "Unknown model backend, specify either --lpy_model or --kcpp_host.")
+        Logger.log_event("Error", Fore.RED, "Unknown model backend, specify either --kcpp_host, --lcpp-host, --ooba-host or --lpy-model.")
         exit(-1)
     model.wait()
     model.load_preset(f"presets/{(args.preset if args.preset else 'default')}.json")
@@ -142,6 +146,8 @@ if __name__ == "__main__":
         secondary_model = LcppModel(args.lcpp_secondary_host, 2048, True)
     elif args.kcpp_secondary_host:
         secondary_model = KcppModel(args.kcpp_secondary_host, 2048, True)
+    elif args.ooba_secondary_host:
+        secondary_model = OobaModel(args.ooba_secondary_host, 2048, True)
     else:
         Logger.log("Secondary model not specified, some tests will be skipped.")
 

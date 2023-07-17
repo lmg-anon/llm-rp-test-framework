@@ -10,7 +10,7 @@ import abc
 __all__ = ("LanguageModel",)
 
 
-class LanguageModel:
+class LanguageModel(abc.ABC):
     base_seed = None
 
     def __init__(self, max_context: int, secondary: bool):

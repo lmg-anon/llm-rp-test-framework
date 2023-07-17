@@ -1,5 +1,4 @@
-colorama==0.4.6
-pypng==0.20220715.0
-requests==2.31.0
-sentencepiece==0.1.97
-tqdm==4.64.1
+colorama
+requests
+sentencepiece
+tqdm

@@ -1,4 +1,3 @@
-
 from modules.model import LanguageModel
 from modules.log import Logger
 from colorama import Fore
@@ -6,20 +5,20 @@ import requests
 import json
 import time
 
-__all__ = ("KcppModel",)
+__all__ = ("OobaModel",)
 
 
-class KcppModel(LanguageModel):
-    def __init__(self, kcpp_host: str, max_context: int, secondary: bool = False):
-        assert(isinstance(kcpp_host, str))
-        self.kcpp_host = kcpp_host
+class OobaModel(LanguageModel):
+    def __init__(self, ooba_host: str, max_context: int, secondary: bool = False):
+        assert(isinstance(ooba_host, str))
+        self.ooba_host = ooba_host
         super().__init__(max_context, secondary)
 
     def wait(self):
         wait_started = False
         while True:
             try:
-                requests.get(f"http://{self.kcpp_host}/")
+                requests.get(f"http://{self.ooba_host}/")
                 break
             except Exception as e:
                 if not wait_started:
@@ -28,14 +27,30 @@ class KcppModel(LanguageModel):
                 time.sleep(1)
                 continue
 
+    def _convert_data(self, data: dict, stream: bool = False) -> dict:
+        def rename_dict_key(lhs: str, rhs: str):
+            if lhs in data:
+                data[rhs] = data[lhs]
+                del data[lhs]
+        rename_dict_key("max_context_length", "truncation_length")
+        rename_dict_key("max_tokens", "max_new_tokens")
+        rename_dict_key("max_length", "max_new_tokens")
+        rename_dict_key("rep_pen", "repetition_penalty")
+        rename_dict_key("rep_pen_range", "repetition_penalty_range")
+        rename_dict_key("typical", "typical_p")
+        rename_dict_key("sampler_seed", "seed")
+        rename_dict_key("stop_sequence", "stopping_strings")
+        return data
+
     def _generate_once(self, data: dict) -> str:
+        data = self._convert_data(data)
         response_text = str()
 
         for _ in range(5):
             try:
-                response = requests.post(f"http://{self.kcpp_host}/api/v1/generate", data=json.dumps(data), headers={'Content-Type': 'application/json'})
+                response = requests.post(f"http://{self.ooba_host}/api/v1/generate", data=json.dumps(data), headers={'Content-Type': 'application/json'})
             except Exception as e:
-                Logger.log_event("Error", Fore.RED, f"Model backend is offline.")
+                Logger.log_event("Error", Fore.RED, f"{self.get_identifier()} is offline.")
                 exit(-1)
 
             if response.status_code == 503: # Server busy.
