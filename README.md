@@ -46,6 +46,9 @@ python3 test_runner.py
 If the file `test_plan.json` is correct, the testing should start in your console. You can check verbose logs of the tests by opening the latest log in the `logs` folder or by using the `--verbose` flag in the `extra_args` argument of your `test_plan.json`.
 Please be aware that there aren't many tests yet, and not all of them may support models with 2048 context.
 
+![image](https://github.com/lmg-anon/llm-rp-test-framework/assets/139719567/27ee651e-03e1-45aa-8cef-cfa387ce6ff4)
+*(Test ran using my CPU and with a wrong prompt format)*
+
 #### Advanced Usage
 
 The `test_runner.py` script is just a simple helper over the main script, you can use it directly if you (for some reason) need more control over the test.
