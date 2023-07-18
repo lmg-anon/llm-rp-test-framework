@@ -12,18 +12,21 @@ __all__ = ("LcppModel",)
 class LcppModel(LanguageModel):
     def __init__(self, lcpp_host: str, max_context: int, secondary: bool = False):
         assert(isinstance(lcpp_host, str))
-        self.lcpp_host = lcpp_host
+        self.lcpp_host = lcpp_host.strip('/')
+        if not self.lcpp_host.startswith("http"):
+            self.lcpp_host = f"http://{self.lcpp_host}"
         super().__init__(max_context, secondary)
 
     def wait(self):
         wait_started = False
         while True:
             try:
-                response = requests.get(f"http://{self.lcpp_host}/")
+                response = requests.get(f"{self.lcpp_host}/")
                 break
             except Exception as e:
                 if not wait_started:
                     Logger.log(f"{self.get_identifier()} is offline, waiting for it to become online...")
+                    Logger.log(e, True)
                     wait_started = True
                 time.sleep(1)
                 continue
@@ -56,9 +59,10 @@ class LcppModel(LanguageModel):
                 break
 
             try:
-                response = requests.post(f"http://{self.lcpp_host}/completion", data=json.dumps(data), headers={'Content-Type': 'application/json'})
+                response = requests.post(f"{self.lcpp_host}/completion", data=json.dumps(data), headers={'Content-Type': 'application/json'})
             except Exception as e:
                 Logger.log_event("Error", Fore.RED, f"{self.get_identifier()} is offline.")
+                Logger.log(e, True)
                 exit(-1)
 
             if response.status_code == 503 or response.status_code == 400: # Server busy.

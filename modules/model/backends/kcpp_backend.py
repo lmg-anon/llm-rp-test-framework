@@ -11,18 +11,21 @@ __all__ = ("KcppModel",)
 class KcppModel(LanguageModel):
     def __init__(self, kcpp_host: str, max_context: int, secondary: bool = False):
         assert(isinstance(kcpp_host, str))
-        self.kcpp_host = kcpp_host
+        self.kcpp_host = kcpp_host.strip('/')
+        if not self.kcpp_host.startswith("http"):
+            self.kcpp_host = f"http://{self.kcpp_host}"
         super().__init__(max_context, secondary)
 
     def wait(self):
         wait_started = False
         while True:
             try:
-                requests.get(f"http://{self.kcpp_host}/")
+                requests.get(f"{self.kcpp_host}/")
                 break
             except Exception as e:
                 if not wait_started:
                     Logger.log(f"{self.get_identifier()} is offline, waiting for it to become online...")
+                    Logger.log(e, True)
                     wait_started = True
                 time.sleep(1)
                 continue
@@ -32,9 +35,10 @@ class KcppModel(LanguageModel):
 
         for _ in range(5):
             try:
-                response = requests.post(f"http://{self.kcpp_host}/api/v1/generate", data=json.dumps(data), headers={'Content-Type': 'application/json'})
+                response = requests.post(f"{self.kcpp_host}/api/v1/generate", data=json.dumps(data), headers={'Content-Type': 'application/json'})
             except Exception as e:
                 Logger.log_event("Error", Fore.RED, f"{self.get_identifier()} is offline.")
+                Logger.log(e, True)
                 exit(-1)
 
             if response.status_code == 503: # Server busy.
