@@ -87,27 +87,27 @@ def example_clues(model: LanguageModel, prompt: RoleplayPrompt) -> bool:
 def prepare_test(params: TestParams) -> list[tuple[str, Callable]]:
     return [
         (
-            "Basic understanding 1",
+            "Consistent age",
             lambda: ask_for_age(params.model, params.prompt, False)
         ),
         (
-            "Basic understanding 2",
+            "Consistent eye color",
             lambda: ask_for_eye_color(params.model, params.prompt, False)
         ),
         (
-            "Basic understanding 3",
+            "Consistent school name",
             lambda: ask_for_school_name(params.model, params.prompt, False)
         ),
         (
-            "Basic understanding 1 (long context)",
+            f"Consistent age [long context]",
             lambda: ask_for_age(params.model, params.prompt, True)
         ),
         (
-            "Basic understanding 2 (long context)",
+            f"Consistent eye color [long context]",
             lambda: ask_for_eye_color(params.model, params.prompt, True)
         ),
         (
-            "Basic understanding 3 (long context)",
+            f"Consistent school name [long context]",
             lambda: ask_for_school_name(params.model, params.prompt, True)
         ),
         # TODO: Instructed action (Card example: "{{char}} always whistles when he sees a girl")

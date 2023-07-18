@@ -1,4 +1,4 @@
 description,message_input,message_output,expected_output
-Simple math 1,"""How much is 888 + 88?""","""888 + 88 is equal to",976
-Simple math 2,"""What is the result of 7 multiplied by 8?""","""7 multiplied by 8 is equal to",56
-Simple math 3,"""What is the value of x if you solve the equation 2x + 5 = 17 for x?""","""x is equal to",6
+Addition solving,"""How much is 888 + 88?""","""888 + 88 is equal to",976
+Multiplication solving,"""What is the result of 7 multiplied by 8?""","""7 multiplied by 8 is equal to",56
+Equation solving,"""What is the value of x if you solve the equation 2x + 5 = 17 for x?""","""x is equal to",6

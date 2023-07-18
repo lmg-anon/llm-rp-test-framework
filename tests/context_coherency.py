@@ -144,11 +144,11 @@ def understand_options(model: LanguageModel, prompt: RoleplayPrompt, secondary_m
 def prepare_test(params: TestParams) -> list[tuple[str, Callable]]:
     return [
         (
-            "Location awareness",
+            f"Location awareness [long context]",
             lambda: ask_for_location(params.model, params.prompt)
         ),
         (
-            "Memory of events (long context)",
+            f"Memory of events [long context]",
             lambda: event_memory(params.model, params.prompt)
         ),
         (
