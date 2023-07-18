@@ -81,22 +81,21 @@ def run_tests(tests: list[tuple[str, Callable]], passes: int, specific_test: str
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Roleplay Test Framework")
 
+    parser.add_argument("--backend", type=str, choices={"koboldcpp", "llamacpp", "ooba", "llamapy"}, help="model backend type")
     parser.add_argument("--preset", type=str, help="model preset (default: default)")
     parser.add_argument("--context-size", type=int, help="model context size (default: 2048)")
     parser.add_argument("--format", type=str, help="model prompt format (default: alpaca)")
     if LPY_PRESENT:
-        parser.add_argument("--lpy-model", type=str, help="model path for llama.py")
-    parser.add_argument("--lcpp-host", type=str, help="host for llama.cpp server")
-    parser.add_argument("--kcpp-host", type=str, help="host for koboldcpp")
-    parser.add_argument("--ooba-host", type=str, help="host for text-generation-webui API server")
+        parser.add_argument("--model", type=str, help="model path for llama.py")
+    parser.add_argument("--host", type=str, help="host for the model backend")
 
+    parser.add_argument("--secondary-backend", type=str, choices={"koboldcpp", "llamacpp", "ooba", "llamapy"}, help="secondary model backend type")
     parser.add_argument("--secondary-preset", type=str, help="secondary model preset (default: precise)")
+    parser.add_argument("--secondary-context-size", type=int, help="secondary model context size (default: 2048)")
     parser.add_argument("--secondary-format", type=str, help="secondary model prompt format (default: alpaca)")
     if LPY_PRESENT:
-        parser.add_argument("--lpy-secondary-model", type=str, help="secondary model path for llama.py")
-    parser.add_argument("--lcpp-secondary-host", type=str, help="secondary host for llama.cpp server")
-    parser.add_argument("--kcpp-secondary-host", type=str, help="secondary host for koboldcpp")
-    parser.add_argument("--ooba-secondary-host", type=str, help="secondary host for text-generation-webui API server")
+        parser.add_argument("--secondary-model", type=str, help="secondary model path for llama.py")
+    parser.add_argument("--secondary-host", type=str, help="host for the secondary model backend")
 
     parser.add_argument("--passes", type=int, help="number of test passes (default: 5)")
     parser.add_argument("--seed", type=int, help="initial rng seed")
@@ -120,16 +119,31 @@ if __name__ == "__main__":
     if args.verbose:
         Logger.print_verbose = True
 
-    if LPY_PRESENT and args.lpy_model:
-        model = LpyModel(args.lpy_model, args.context_size if args.context_size else 2048)  # type: ignore
-    elif args.lcpp_host:
-        model = LcppModel(args.lcpp_host, args.context_size if args.context_size else 2048)
-    elif args.kcpp_host:
-        model = KcppModel(args.kcpp_host, args.context_size if args.context_size else 2048)
-    elif args.ooba_host:
-        model = OobaModel(args.ooba_host, args.context_size if args.context_size else 2048)
+    if args.backend == "llamapy":
+        if not LPY_PRESENT:
+            Logger.log_event("Error", Fore.RED, "Please install llama-cpp-python to use the llamapy backend (pip install llama-cpp-python).")
+            exit(-1)
+        if not args.model:
+            Logger.log_event("Error", Fore.RED, "Specify the model path using the argument --model.")
+            exit(-1)
+        model = LpyModel(args.model, args.context_size if args.context_size else 2048)  # type: ignore
+    elif args.backend == "llamacpp":
+        if not args.host:
+            Logger.log_event("Error", Fore.RED, "Specify the model backend host using the argument --host.")
+            exit(-1)
+        model = LcppModel(args.host, args.context_size if args.context_size else 2048)
+    elif args.backend == "koboldcpp":
+        if not args.host:
+            Logger.log_event("Error", Fore.RED, "Specify the model backend host using the argument --host.")
+            exit(-1)
+        model = KcppModel(args.host, args.context_size if args.context_size else 2048)
+    elif args.backend == "ooba":
+        if not args.host:
+            Logger.log_event("Error", Fore.RED, "Specify the model backend host using the argument --host.")
+            exit(-1)
+        model = OobaModel(args.host, args.context_size if args.context_size else 2048)
     else:
-        Logger.log_event("Error", Fore.RED, "Unknown model backend, specify either --kcpp_host, --lcpp-host, --ooba-host or --lpy-model.")
+        Logger.log_event("Error", Fore.RED, "Unknown model backend, currently supported: koboldcpp, llamacpp, ooba, llamapy.")
         exit(-1)
     model.wait()
     model.load_preset(f"presets/{(args.preset if args.preset else 'default')}.json")
@@ -140,16 +154,34 @@ if __name__ == "__main__":
     prompt = RoleplayPrompt(prompt_format)
 
     secondary_model = None
-    if LPY_PRESENT and args.lpy_secondary_model:
-        secondary_model = LpyModel(args.lpy_secondary_model, 2048, True)  # type: ignore
-    elif args.lcpp_secondary_host:
-        secondary_model = LcppModel(args.lcpp_secondary_host, 2048, True)
-    elif args.kcpp_secondary_host:
-        secondary_model = KcppModel(args.kcpp_secondary_host, 2048, True)
-    elif args.ooba_secondary_host:
-        secondary_model = OobaModel(args.ooba_secondary_host, 2048, True)
-    else:
+    if args.secondary_backend == "llamapy":
+        if not LPY_PRESENT:
+            Logger.log_event("Error", Fore.RED, "Please install llama-cpp-python to use the llamapy backend (pip install llama-cpp-python).")
+            exit(-1)
+        if not args.secondary_model:
+            Logger.log_event("Error", Fore.RED, "Specify the secondary model path using the argument --secondary-model.")
+            exit(-1)
+        secondary_model = LpyModel(args.secondary_model, args.secondary_context_size if args.secondary_context_size else 2048, True)  # type: ignore
+    elif args.secondary_backend == "llamacpp":
+        if not args.secondary_host:
+            Logger.log_event("Error", Fore.RED, "Specify the secondary model backend host using the argument --secondary-host.")
+            exit(-1)
+        secondary_model = LcppModel(args.secondary_host, args.secondary_context_size if args.secondary_context_size else 2048, True)
+    elif args.secondary_backend == "koboldcpp":
+        if not args.secondary_host:
+            Logger.log_event("Error", Fore.RED, "Specify the secondary model backend host using the argument --secondary-host.")
+            exit(-1)
+        secondary_model = KcppModel(args.secondary_host, args.secondary_context_size if args.secondary_context_size else 2048, True)
+    elif args.secondary_backend == "ooba":
+        if not args.secondary_host:
+            Logger.log_event("Error", Fore.RED, "Specify the secondary model backend host using the argument --secondary-host.")
+            exit(-1)
+        secondary_model = OobaModel(args.secondary_host, args.secondary_context_size if args.secondary_context_size else 2048, True)
+    elif not args.secondary_backend:
         Logger.log("Secondary model not specified, some tests will be skipped.")
+    else:
+        Logger.log_event("Error", Fore.RED, "Unknown secondary model backend, currently supported: koboldcpp, llamacpp, ooba, llamapy.")
+        exit(-1)
 
     secondary_prompt = None
     if secondary_model:

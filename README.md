@@ -54,41 +54,37 @@ Please be aware that there aren't many tests yet, and not all of them may suppor
 The `test_runner.py` script is just a simple helper over the main script, you can use it directly if you (for some reason) need more control over the test.
 
 ```bash
-usage: main.py [-h] [--preset PRESET] [--context-size CONTEXT_SIZE] [--format FORMAT] [--lpy-model LPY_MODEL]
-               [--lcpp-host LCPP_HOST] [--kcpp-host KCPP_HOST] [--ooba-host OOBA_HOST]
-               [--secondary-preset SECONDARY_PRESET] [--secondary-format SECONDARY_FORMAT]
-               [--lpy-secondary-model LPY_SECONDARY_MODEL] [--lcpp-secondary-host LCPP_SECONDARY_HOST]
-               [--kcpp-secondary-host KCPP_SECONDARY_HOST] [--ooba-secondary-host OOBA_SECONDARY_HOST]
-               [--passes PASSES] [--seed SEED] [--test-suite TEST_SUITE] [--test TEST] [--verbose]
+usage: main.py [-h] [--backend {ooba,llamacpp,koboldcpp,llamapy}] [--preset PRESET] [--context-size CONTEXT_SIZE]
+               [--format FORMAT] [--model MODEL] [--host HOST] [--secondary-backend {ooba,llamacpp,koboldcpp,llamapy}]
+               [--secondary-preset SECONDARY_PRESET] [--secondary-context-size SECONDARY_CONTEXT_SIZE]
+               [--secondary-format SECONDARY_FORMAT] [--secondary-model SECONDARY_MODEL]
+               [--secondary-host SECONDARY_HOST] [--passes PASSES] [--seed SEED] [--test-suite TEST_SUITE]
+               [--test TEST] [--verbose]
 
 Roleplay Test Framework
 
 options:
   -h, --help            show this help message and exit
+  --backend {ooba,llamacpp,koboldcpp,llamapy}
+                        model backend type
   --preset PRESET       model preset (default: default)
   --context-size CONTEXT_SIZE
                         model context size (default: 2048)
   --format FORMAT       model prompt format (default: alpaca)
-  --lpy-model LPY_MODEL
-                        model path for llama.py
-  --lcpp-host LCPP_HOST
-                        host for llama.cpp server
-  --kcpp-host KCPP_HOST
-                        host for koboldcpp
-  --ooba-host OOBA_HOST
-                        host for text-generation-webui API server
+  --model MODEL         model path for llama.py
+  --host HOST           host for the model backend
+  --secondary-backend {ooba,llamacpp,koboldcpp,llamapy}
+                        secondary model backend type
   --secondary-preset SECONDARY_PRESET
                         secondary model preset (default: precise)
+  --secondary-context-size SECONDARY_CONTEXT_SIZE
+                        secondary model context size (default: 2048)
   --secondary-format SECONDARY_FORMAT
                         secondary model prompt format (default: alpaca)
-  --lpy-secondary-model LPY_SECONDARY_MODEL
+  --secondary-model SECONDARY_MODEL
                         secondary model path for llama.py
-  --lcpp-secondary-host LCPP_SECONDARY_HOST
-                        secondary host for llama.cpp server
-  --kcpp-secondary-host KCPP_SECONDARY_HOST
-                        secondary host for koboldcpp
-  --ooba-secondary-host OOBA_SECONDARY_HOST
-                        secondary host for text-generation-webui API server
+  --secondary-host SECONDARY_HOST
+                        host for the secondary model backend
   --passes PASSES       number of test passes (default: 5)
   --seed SEED           initial rng seed
   --test-suite TEST_SUITE

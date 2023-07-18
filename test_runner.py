@@ -37,28 +37,20 @@ def get_run_command(model: ModelParams, context_size: int, thread_number: int, p
     return command
 
 def run_python_script(model: ModelParams, secondary_model: ModelParams | None, context_size: int, extra_args: str):
-    command = f"\"{sys.executable}\" main.py --format {model.model_format} --context {context_size} --preset {model.model_preset} {extra_args}"
+    command = f"\"{sys.executable}\" main.py --backend {model.model_backend} --format {model.model_format} --context {context_size} --preset {model.model_preset} {extra_args}"
 
-    if model.model_backend == "ooba":
-        command += f" --ooba-host {model.model_backend_host}"
-    elif model.model_backend == "koboldcpp":
-        command += f" --kcpp-host {model.model_backend_host}"
-    elif model.model_backend == "llamacpp":
-        command += f" --lcpp-host {model.model_backend_host}"
+    if model.model_backend in ["koboldcpp", "llamacpp", "ooba"]:
+        command += f" --host {model.model_backend_host}"
     elif model.model_backend == "llamapy":
-        command += f" --lpy-model {model.model_path}"
+        command += f" --model {model.model_path}"
 
     if secondary_model:
-        command += f" --secondary-format {secondary_model.model_format} --secondary-preset {secondary_model.model_preset}"
+        command += f" --secondary-backend {secondary_model.model_backend} --secondary-format {secondary_model.model_format} --secondary-preset {secondary_model.model_preset}"
 
-        if secondary_model.model_backend == "ooba":
-            command += f" --ooba-secondary-host {secondary_model.model_backend_host}"
-        elif secondary_model.model_backend == "koboldcpp":
-            command += f" --kcpp-secondary-host {secondary_model.model_backend_host}"
-        elif secondary_model.model_backend == "llamacpp":
-            command += f" --lcpp-secondary-host {secondary_model.model_backend_host}"
+        if secondary_model.model_backend in ["koboldcpp", "llamacpp", "ooba"]:
+            command += f" --secondary-host {secondary_model.model_backend_host}"
         elif secondary_model.model_backend == "llamapy":
-            command += f" --lpy-secondary-model {secondary_model.model_path}"
+            command += f" --secondary-model {secondary_model.model_path}"
 
     subprocess.run(command, shell=True)
 
