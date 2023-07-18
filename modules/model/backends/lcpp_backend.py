@@ -26,7 +26,7 @@ class LcppModel(LanguageModel):
             except Exception as e:
                 if not wait_started:
                     Logger.log(f"{self.get_identifier()} is offline, waiting for it to become online...")
-                    Logger.log(e, True)
+                    Logger.log(str(e), True)
                     wait_started = True
                 time.sleep(1)
                 continue
@@ -62,7 +62,7 @@ class LcppModel(LanguageModel):
                 response = requests.post(f"{self.lcpp_host}/completion", data=json.dumps(data), headers={'Content-Type': 'application/json'})
             except Exception as e:
                 Logger.log_event("Error", Fore.RED, f"{self.get_identifier()} is offline.")
-                Logger.log(e, True)
+                Logger.log(str(e), True)
                 exit(-1)
 
             if response.status_code == 503 or response.status_code == 400: # Server busy.

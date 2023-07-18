@@ -22,7 +22,7 @@ class Logger:
         cls.log_file = os.path.abspath(os.path.join(cls.log_folder, f"log_{timestamp}.txt"))
 
     @classmethod
-    def log(cls, message, verbose=False):
+    def log(cls, message: str, verbose: bool = False):
         now = datetime.datetime.now()
         timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -37,7 +37,7 @@ class Logger:
                 file.write(f"[{timestamp}] {message}\n")
 
     @classmethod
-    def log_event(cls, event, color, message, verbose=False):
+    def log_event(cls, event: str, color: str, message: str, verbose: bool = False):
         now = datetime.datetime.now()
         timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
 
