@@ -13,11 +13,11 @@ __all__ = ("LanguageModel",)
 class LanguageModel(abc.ABC):
     base_seed = None
 
-    def __init__(self, max_context: int, secondary: bool):
+    def __init__(self, max_context: int, auxiliary: bool):
         self.max_context = max_context
         self.presets = dict()
         self.seed = LanguageModel.base_seed
-        self.is_secondary = secondary
+        self.is_auxiliary = auxiliary
 
     def load_preset(self, file_path: str):
         with open(file_path, "r") as file:
@@ -25,13 +25,13 @@ class LanguageModel(abc.ABC):
 
     def new_seed(self):
         self.seed = random.randint(1, 0xFFFFFFFF)
-        Logger.log(f"New {'secondary ' if self.is_secondary else ''}model seed: {self.seed}", True)
+        Logger.log(f"New {'auxiliary ' if self.is_auxiliary else ''}model seed: {self.seed}", True)
 
     def clear_seed(self):
         self.seed = LanguageModel.base_seed
 
     def get_identifier(self) -> str:
-        return f"Model backend{' (secondary)' if self.is_secondary else ''}"
+        return f"Model backend{' (auxiliary)' if self.is_auxiliary else ''}"
 
     @abc.abstractmethod
     def wait(self):

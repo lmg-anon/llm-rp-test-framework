@@ -6,10 +6,10 @@ __all__ = ("LpyModel",)
 
 
 class LpyModel(LanguageModel):
-    def __init__(self, model_path: str, max_context: int, secondary: bool = False):
+    def __init__(self, model_path: str, max_context: int, auxiliary: bool = False):
         self.new_seed()
         self.llm = Llama(model_path=model_path, n_ctx=max_context, seed=self.seed, verbose=False)  # type: ignore
-        super().__init__(max_context, secondary)
+        super().__init__(max_context, auxiliary)
 
     def __del__(self):
         del self.llm

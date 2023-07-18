@@ -9,12 +9,12 @@ __all__ = ("OobaModel",)
 
 
 class OobaModel(LanguageModel):
-    def __init__(self, ooba_host: str, max_context: int, secondary: bool = False):
+    def __init__(self, ooba_host: str, max_context: int, auxiliary: bool = False):
         assert(isinstance(ooba_host, str))
         self.ooba_host = ooba_host.strip('/')
         if not self.ooba_host.startswith("http"):
             self.ooba_host = f"http://{self.ooba_host}"
-        super().__init__(max_context, secondary)
+        super().__init__(max_context, auxiliary)
 
     def wait(self):
         wait_started = False

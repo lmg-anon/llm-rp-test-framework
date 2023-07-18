@@ -87,7 +87,7 @@ def follow_format(model: LanguageModel, prompt: RoleplayPrompt) -> bool:
     Logger.log_event("Failure", Fore.RED, repr(result), True)
     return False
 
-def understand_options(model: LanguageModel, prompt: RoleplayPrompt, secondary_model: LanguageModel | None, secondary_prompt: InstructPrompt | None) -> bool:
+def understand_options(model: LanguageModel, prompt: RoleplayPrompt, auxiliary_model: LanguageModel | None, auxiliary_prompt: InstructPrompt | None) -> bool:
     model.new_seed()
 
     card = CharacterCard()
@@ -115,19 +115,19 @@ def understand_options(model: LanguageModel, prompt: RoleplayPrompt, secondary_m
             Logger.log_event("Success", Fore.GREEN, repr(result), True)
             return True
 
-    if secondary_model is not None and secondary_prompt is not None:
+    if auxiliary_model is not None and auxiliary_prompt is not None:
         # We couldn't deduce if the answer was seductive from the simple check...
-        # Let's use a secondary model to verify the answer.
-        Logger.log(f"Questioning secondary model about correctness of output: {repr(result)}", True)
+        # Let's use a auxiliary model to verify the answer.
+        Logger.log(f"Questioning auxiliary model about correctness of output: {repr(result)}", True)
 
         yes = 0
         for i in range(5):
-            secondary_model.new_seed()
-            secondary_prompt.init()
-            secondary_prompt.add_question(result, f"Is Jin smiling seductively and approaching Ayre? Answer with Yes or No.")
+            auxiliary_model.new_seed()
+            auxiliary_prompt.init()
+            auxiliary_prompt.add_question(result, f"Is Jin smiling seductively and approaching Ayre? Answer with Yes or No.")
 
-            answer = secondary_model.generate(secondary_prompt, max_iter=1)
-            Logger.log(f"Secondary model response {i+1}: {answer.strip()}", True)
+            answer = auxiliary_model.generate(auxiliary_prompt, max_iter=1)
+            Logger.log(f"Auxiliary model response {i+1}: {answer.strip()}", True)
 
             if "yes" in answer.lower():
                 yes += 1
@@ -157,7 +157,7 @@ def prepare_test(params: TestParams) -> list[tuple[str, Callable]]:
         ),
         (
             "Understand reply options",
-            lambda: understand_options(params.model, params.prompt, params.secondary_model, params.secondary_prompt)
+            lambda: understand_options(params.model, params.prompt, params.auxiliary_model, params.auxiliary_prompt)
         )
         # TODO: Clothing awareness (At the start of the conversation: "*user removes shirt*", some messages later "*user drops water on himself*", and then "*char notices user dropped water all over his ...")
     ]

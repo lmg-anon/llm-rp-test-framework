@@ -10,12 +10,12 @@ __all__ = ("LcppModel",)
 
 
 class LcppModel(LanguageModel):
-    def __init__(self, lcpp_host: str, max_context: int, secondary: bool = False):
+    def __init__(self, lcpp_host: str, max_context: int, auxiliary: bool = False):
         assert(isinstance(lcpp_host, str))
         self.lcpp_host = lcpp_host.strip('/')
         if not self.lcpp_host.startswith("http"):
             self.lcpp_host = f"http://{self.lcpp_host}"
-        super().__init__(max_context, secondary)
+        super().__init__(max_context, auxiliary)
 
     def wait(self):
         wait_started = False

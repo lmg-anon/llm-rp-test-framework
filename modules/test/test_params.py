@@ -7,5 +7,5 @@ from dataclasses import dataclass
 class TestParams:
     model: LanguageModel
     prompt: RoleplayPrompt
-    secondary_model: LanguageModel | None
-    secondary_prompt: InstructPrompt | None
+    auxiliary_model: LanguageModel | None
+    auxiliary_prompt: InstructPrompt | None

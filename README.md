@@ -32,7 +32,7 @@ Next you will need to create a file `test_plan.json`, you can just edit the `tes
 | model_format | The prompt format that will be used for the model. It must be one of the files inside the "formats" folder without it's extension. |
 | model_preset | The configuration preset that will be used for the inference. It must be one of the files inside the "presets" folder without it's extension. (Default: default) |
 | model_backend_args | Extra arguments that should be passed to the backend server. (Optional) |
-| secondary_model_* | The above descriptions also apply to these arguments. The only differences is that it will be used for the secondary model, and all the secondary model options are optional. |
+| auxiliary_model_* | The above descriptions also apply to these arguments. The only differences is that it will be used for the auxiliary model, and all the auxiliary model options are optional. |
 | context_size | The model context size. (Default: 2048) |
 | thread_number | The number of threads to use for inference. |
 | extra_args | Extra arguments that should be passed to the main script. (Optional) |
@@ -55,10 +55,10 @@ The `test_runner.py` script is just a simple helper over the main script, you ca
 
 ```bash
 usage: main.py [-h] [--backend {ooba,llamacpp,koboldcpp,llamapy}] [--preset PRESET] [--context-size CONTEXT_SIZE]
-               [--format FORMAT] [--model MODEL] [--host HOST] [--secondary-backend {ooba,llamacpp,koboldcpp,llamapy}]
-               [--secondary-preset SECONDARY_PRESET] [--secondary-context-size SECONDARY_CONTEXT_SIZE]
-               [--secondary-format SECONDARY_FORMAT] [--secondary-model SECONDARY_MODEL]
-               [--secondary-host SECONDARY_HOST] [--passes PASSES] [--seed SEED] [--test-suite TEST_SUITE]
+               [--format FORMAT] [--model MODEL] [--host HOST] [--auxiliary-backend {ooba,llamacpp,koboldcpp,llamapy}]
+               [--auxiliary-preset AUXILIARY_PRESET] [--auxiliary-context-size AUXILIARY_CONTEXT_SIZE]
+               [--auxiliary-format AUXILIARY_FORMAT] [--auxiliary-model AUXILIARY_MODEL]
+               [--auxiliary-host AUXILIARY_HOST] [--passes PASSES] [--seed SEED] [--test-suite TEST_SUITE]
                [--test TEST] [--verbose]
 
 Roleplay Test Framework
@@ -73,18 +73,18 @@ options:
   --format FORMAT       model prompt format (default: alpaca)
   --model MODEL         model path for llama.py
   --host HOST           host for the model backend
-  --secondary-backend {ooba,llamacpp,koboldcpp,llamapy}
-                        secondary model backend type
-  --secondary-preset SECONDARY_PRESET
-                        secondary model preset (default: precise)
-  --secondary-context-size SECONDARY_CONTEXT_SIZE
-                        secondary model context size (default: 2048)
-  --secondary-format SECONDARY_FORMAT
-                        secondary model prompt format (default: alpaca)
-  --secondary-model SECONDARY_MODEL
-                        secondary model path for llama.py
-  --secondary-host SECONDARY_HOST
-                        host for the secondary model backend
+  --auxiliary-backend {ooba,llamacpp,koboldcpp,llamapy}
+                        auxiliary model backend type
+  --auxiliary-preset AUXILIARY_PRESET
+                        auxiliary model preset (default: precise)
+  --auxiliary-context-size AUXILIARY_CONTEXT_SIZE
+                        auxiliary model context size (default: 2048)
+  --auxiliary-format AUXILIARY_FORMAT
+                        auxiliary model prompt format (default: alpaca)
+  --auxiliary-model AUXILIARY_MODEL
+                        auxiliary model path for llama.py
+  --auxiliary-host AUXILIARY_HOST
+                        host for the auxiliary model backend
   --passes PASSES       number of test passes (default: 5)
   --seed SEED           initial rng seed
   --test-suite TEST_SUITE
@@ -95,11 +95,11 @@ options:
 
 ## More Information
 
-### Secondary Model
+### Auxiliary Model
 
-The secondary model is a model used for questioning the correctness of the primary model output. It is used for tests that are more tricky than simply checking a list of expected words.
+The auxiliary model is a model used for questioning the correctness of the primary model output. It is used for tests that are more tricky than simply checking a list of expected words.
 
-If we use the `alpaca` format, the secondary model would be prompted like this:
+If we use the `alpaca` format, the auxiliary model would be prompted like this:
 ```
 Below is an instruction that describes a task. Write a response that appropriately completes the request.
 

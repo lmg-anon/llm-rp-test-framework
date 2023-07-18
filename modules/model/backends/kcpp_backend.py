@@ -9,12 +9,12 @@ __all__ = ("KcppModel",)
 
 
 class KcppModel(LanguageModel):
-    def __init__(self, kcpp_host: str, max_context: int, secondary: bool = False):
+    def __init__(self, kcpp_host: str, max_context: int, auxiliary: bool = False):
         assert(isinstance(kcpp_host, str))
         self.kcpp_host = kcpp_host.strip('/')
         if not self.kcpp_host.startswith("http"):
             self.kcpp_host = f"http://{self.kcpp_host}"
-        super().__init__(max_context, secondary)
+        super().__init__(max_context, auxiliary)
 
     def wait(self):
         wait_started = False

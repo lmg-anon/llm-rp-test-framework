@@ -89,13 +89,13 @@ if __name__ == "__main__":
         parser.add_argument("--model", type=str, help="model path for llama.py")
     parser.add_argument("--host", type=str, help="host for the model backend")
 
-    parser.add_argument("--secondary-backend", type=str, choices={"koboldcpp", "llamacpp", "ooba", "llamapy"}, help="secondary model backend type")
-    parser.add_argument("--secondary-preset", type=str, help="secondary model preset (default: precise)")
-    parser.add_argument("--secondary-context-size", type=int, help="secondary model context size (default: 2048)")
-    parser.add_argument("--secondary-format", type=str, help="secondary model prompt format (default: alpaca)")
+    parser.add_argument("--auxiliary-backend", type=str, choices={"koboldcpp", "llamacpp", "ooba", "llamapy"}, help="auxiliary model backend type")
+    parser.add_argument("--auxiliary-preset", type=str, help="auxiliary model preset (default: precise)")
+    parser.add_argument("--auxiliary-context-size", type=int, help="auxiliary model context size (default: 2048)")
+    parser.add_argument("--auxiliary-format", type=str, help="auxiliary model prompt format (default: alpaca)")
     if LPY_PRESENT:
-        parser.add_argument("--secondary-model", type=str, help="secondary model path for llama.py")
-    parser.add_argument("--secondary-host", type=str, help="host for the secondary model backend")
+        parser.add_argument("--auxiliary-model", type=str, help="auxiliary model path for llama.py")
+    parser.add_argument("--auxiliary-host", type=str, help="host for the auxiliary model backend")
 
     parser.add_argument("--passes", type=int, help="number of test passes (default: 5)")
     parser.add_argument("--seed", type=int, help="initial rng seed")
@@ -153,45 +153,45 @@ if __name__ == "__main__":
 
     prompt = RoleplayPrompt(prompt_format)
 
-    secondary_model = None
-    if args.secondary_backend == "llamapy":
+    auxiliary_model = None
+    if args.auxiliary_backend == "llamapy":
         if not LPY_PRESENT:
             Logger.log_event("Error", Fore.RED, "Please install llama-cpp-python to use the llamapy backend (pip install llama-cpp-python).")
             exit(-1)
-        if not args.secondary_model:
-            Logger.log_event("Error", Fore.RED, "Specify the secondary model path using the argument --secondary-model.")
+        if not args.auxiliary_model:
+            Logger.log_event("Error", Fore.RED, "Specify the auxiliary model path using the argument --auxiliary-model.")
             exit(-1)
-        secondary_model = LpyModel(args.secondary_model, args.secondary_context_size if args.secondary_context_size else 2048, True)  # type: ignore
-    elif args.secondary_backend == "llamacpp":
-        if not args.secondary_host:
-            Logger.log_event("Error", Fore.RED, "Specify the secondary model backend host using the argument --secondary-host.")
+        auxiliary_model = LpyModel(args.auxiliary_model, args.auxiliary_context_size if args.auxiliary_context_size else 2048, True)  # type: ignore
+    elif args.auxiliary_backend == "llamacpp":
+        if not args.auxiliary_host:
+            Logger.log_event("Error", Fore.RED, "Specify the auxiliary model backend host using the argument --auxiliary-host.")
             exit(-1)
-        secondary_model = LcppModel(args.secondary_host, args.secondary_context_size if args.secondary_context_size else 2048, True)
-    elif args.secondary_backend == "koboldcpp":
-        if not args.secondary_host:
-            Logger.log_event("Error", Fore.RED, "Specify the secondary model backend host using the argument --secondary-host.")
+        auxiliary_model = LcppModel(args.auxiliary_host, args.auxiliary_context_size if args.auxiliary_context_size else 2048, True)
+    elif args.auxiliary_backend == "koboldcpp":
+        if not args.auxiliary_host:
+            Logger.log_event("Error", Fore.RED, "Specify the auxiliary model backend host using the argument --auxiliary-host.")
             exit(-1)
-        secondary_model = KcppModel(args.secondary_host, args.secondary_context_size if args.secondary_context_size else 2048, True)
-    elif args.secondary_backend == "ooba":
-        if not args.secondary_host:
-            Logger.log_event("Error", Fore.RED, "Specify the secondary model backend host using the argument --secondary-host.")
+        auxiliary_model = KcppModel(args.auxiliary_host, args.auxiliary_context_size if args.auxiliary_context_size else 2048, True)
+    elif args.auxiliary_backend == "ooba":
+        if not args.auxiliary_host:
+            Logger.log_event("Error", Fore.RED, "Specify the auxiliary model backend host using the argument --auxiliary-host.")
             exit(-1)
-        secondary_model = OobaModel(args.secondary_host, args.secondary_context_size if args.secondary_context_size else 2048, True)
-    elif not args.secondary_backend:
-        Logger.log("Secondary model not specified, some tests will be skipped.")
+        auxiliary_model = OobaModel(args.auxiliary_host, args.auxiliary_context_size if args.auxiliary_context_size else 2048, True)
+    elif not args.auxiliary_backend:
+        Logger.log("Auxiliary model not specified, some tests will be skipped.")
     else:
-        Logger.log_event("Error", Fore.RED, "Unknown secondary model backend, currently supported: koboldcpp, llamacpp, ooba, llamapy.")
+        Logger.log_event("Error", Fore.RED, "Unknown auxiliary model backend, currently supported: koboldcpp, llamacpp, ooba, llamapy.")
         exit(-1)
 
-    secondary_prompt = None
-    if secondary_model:
-        secondary_model.wait()
-        secondary_model.load_preset(f"presets/{(args.secondary_preset if args.secondary_preset else 'precise')}.json")
+    auxiliary_prompt = None
+    if auxiliary_model:
+        auxiliary_model.wait()
+        auxiliary_model.load_preset(f"presets/{(args.auxiliary_preset if args.auxiliary_preset else 'precise')}.json")
 
-        with open(f"formats/{(args.secondary_format if args.secondary_format else 'alpaca')}.json", "r") as file:
-            secondary_prompt_format = json.load(file)
+        with open(f"formats/{(args.auxiliary_format if args.auxiliary_format else 'alpaca')}.json", "r") as file:
+            auxiliary_prompt_format = json.load(file)
 
-        secondary_prompt = InstructPrompt(secondary_prompt_format)
+        auxiliary_prompt = InstructPrompt(auxiliary_prompt_format)
 
     scripts = []
     scripts.extend(load_csvs("tests/*.csv"))
@@ -216,7 +216,7 @@ if __name__ == "__main__":
             else:
                 suite_canonical_name = script.canonical_name
                 suite_name = script.name
-                tests = getattr(script, "prepare_test")(TestParams(model, prompt, secondary_model, secondary_prompt))
+                tests = getattr(script, "prepare_test")(TestParams(model, prompt, auxiliary_model, auxiliary_prompt))
 
             if len(tests) == 0 or args.test_suite and (suite_name.lower() != args.test_suite.lower() and suite_canonical_name.lower() != args.test_suite.lower()):
                 Logger.log(f"Skipped test suite \"{suite_name}\".")

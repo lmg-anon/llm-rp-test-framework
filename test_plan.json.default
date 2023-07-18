@@ -2,12 +2,12 @@
     {
         "model_backend": "koboldcpp",
         "model_backend_host": "127.0.0.1:5000",
-        "model_format": "superhot",
-        "secondary_model_backend": "koboldcpp",
-        "secondary_model_backend_path": "<path to executable>/koboldcpp.exe",
-        "secondary_model_backend_args": "--useclblast 0 0 --unbantokens --blasbatchsize 1024",
-        "secondary_model_path": "<path to model>/wizardlm-30b.ggmlv3.q5_K_M.bin",
-        "secondary_model_format": "vicuna",
+        "model_format": "alpaca",
+        "auxiliary_model_backend": "koboldcpp",
+        "auxiliary_model_backend_path": "<path to executable>/koboldcpp.exe",
+        "auxiliary_model_backend_args": "--useclblast 0 0 --unbantokens --blasbatchsize 1024",
+        "auxiliary_model_path": "<path to model>/wizardlm-30b.ggmlv3.q5_K_M.bin",
+        "auxiliary_model_format": "vicuna",
         "context_size": 8192,
         "thread_number": 5,
         "extra_args": "--passes 10"

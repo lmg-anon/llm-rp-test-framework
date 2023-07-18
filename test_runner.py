@@ -7,7 +7,7 @@ import os
 from dataclasses import dataclass
 
 current_process = None
-current_secondary_process = None
+current_auxiliary_process = None
 
 @dataclass
 class ModelParams:
@@ -36,7 +36,7 @@ def get_run_command(model: ModelParams, context_size: int, thread_number: int, p
         return ""
     return command
 
-def run_python_script(model: ModelParams, secondary_model: ModelParams | None, context_size: int, extra_args: str):
+def run_python_script(model: ModelParams, auxiliary_model: ModelParams | None, context_size: int, extra_args: str):
     command = f"\"{sys.executable}\" main.py --backend {model.model_backend} --format {model.model_format} --context {context_size} --preset {model.model_preset} {extra_args}"
 
     if model.model_backend in ["koboldcpp", "llamacpp", "ooba"]:
@@ -44,13 +44,13 @@ def run_python_script(model: ModelParams, secondary_model: ModelParams | None, c
     elif model.model_backend == "llamapy":
         command += f" --model {model.model_path}"
 
-    if secondary_model:
-        command += f" --secondary-backend {secondary_model.model_backend} --secondary-format {secondary_model.model_format} --secondary-preset {secondary_model.model_preset}"
+    if auxiliary_model:
+        command += f" --auxiliary-backend {auxiliary_model.model_backend} --auxiliary-format {auxiliary_model.model_format} --auxiliary-preset {auxiliary_model.model_preset}"
 
-        if secondary_model.model_backend in ["koboldcpp", "llamacpp", "ooba"]:
-            command += f" --secondary-host {secondary_model.model_backend_host}"
-        elif secondary_model.model_backend == "llamapy":
-            command += f" --secondary-model {secondary_model.model_path}"
+        if auxiliary_model.model_backend in ["koboldcpp", "llamacpp", "ooba"]:
+            command += f" --auxiliary-host {auxiliary_model.model_backend_host}"
+        elif auxiliary_model.model_backend == "llamapy":
+            command += f" --auxiliary-model {auxiliary_model.model_path}"
 
     subprocess.run(command, shell=True)
 
@@ -60,16 +60,16 @@ def exit_gracefully(signum, frame):
         current_process.terminate()
         current_process.wait()
         current_process = None
-    global current_secondary_process
-    if current_secondary_process is not None and current_secondary_process.poll() is None:
-        current_secondary_process.terminate()
-        current_secondary_process.wait()
-        current_secondary_process = None
+    global current_auxiliary_process
+    if current_auxiliary_process is not None and current_auxiliary_process.poll() is None:
+        current_auxiliary_process.terminate()
+        current_auxiliary_process.wait()
+        current_auxiliary_process = None
     exit()
 
 def run_test_plan(test_plan_file):
     global current_process
-    global current_secondary_process
+    global current_auxiliary_process
 
     with open(test_plan_file, "r") as f:
         test_plan = json.load(f)
@@ -92,22 +92,22 @@ def run_test_plan(test_plan_file):
         )
         model_backend_args = item.get("model_backend_args", "")
 
-        secondary_model_backend = item.get("secondary_model_backend", "")
-        secondary_model_backend_args = item.get("secondary_model_backend_args", "")
+        auxiliary_model_backend = item.get("auxiliary_model_backend", "")
+        auxiliary_model_backend_args = item.get("auxiliary_model_backend_args", "")
 
-        secondary_model = None
-        if secondary_model_backend:
+        auxiliary_model = None
+        if auxiliary_model_backend:
             if model_backend not in ["koboldcpp", "llamacpp", "llamapy", "ooba"]:
-                print(f"Invalid secondary_model_backend: {model_backend}")
+                print(f"Invalid auxiliary_model_backend: {model_backend}")
                 continue
 
-            secondary_model = ModelParams(
-                secondary_model_backend,
-                item.get("secondary_model_backend_host", ""),
-                item.get("secondary_model_backend_path", ""),
-                item.get("secondary_model_path", ""),
-                item["secondary_model_format"],
-                item.get("secondary_model_preset", "default")
+            auxiliary_model = ModelParams(
+                auxiliary_model_backend,
+                item.get("auxiliary_model_backend_host", ""),
+                item.get("auxiliary_model_backend_path", ""),
+                item.get("auxiliary_model_path", ""),
+                item["auxiliary_model_format"],
+                item.get("auxiliary_model_preset", "default")
             )
 
         context_size = item.get("context_size", 2048)
@@ -127,21 +127,21 @@ def run_test_plan(test_plan_file):
                 else:
                     current_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        if secondary_model:
-            if not secondary_model.model_backend_host:
-                secondary_model.model_backend_host = "127.0.0.1:5001"
-                run_command = get_run_command(secondary_model, 2048, thread_number, 5001, secondary_model_backend_args)
+        if auxiliary_model:
+            if not auxiliary_model.model_backend_host:
+                auxiliary_model.model_backend_host = "127.0.0.1:5001"
+                run_command = get_run_command(auxiliary_model, 2048, thread_number, 5001, auxiliary_model_backend_args)
                 if run_command:
-                    if current_secondary_process is not None and current_secondary_process.poll() is None:
+                    if current_auxiliary_process is not None and current_auxiliary_process.poll() is None:
                         # Terminate the current process if the parameters don't match
-                        if current_secondary_process.args != run_command:
-                            current_secondary_process.terminate()
-                            current_secondary_process.wait()
-                            current_secondary_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(secondary_model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        if current_auxiliary_process.args != run_command:
+                            current_auxiliary_process.terminate()
+                            current_auxiliary_process.wait()
+                            current_auxiliary_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(auxiliary_model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                     else:
-                        current_secondary_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(secondary_model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        current_auxiliary_process = subprocess.Popen(run_command, cwd=os.path.dirname(os.path.realpath(auxiliary_model.model_backend_path)), shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        run_python_script(model, secondary_model, context_size, extra_args)
+        run_python_script(model, auxiliary_model, context_size, extra_args)
 
     # If the script is exiting, terminate the current process
     if current_process is not None and current_process.poll() is None:
@@ -149,10 +149,10 @@ def run_test_plan(test_plan_file):
         current_process.wait()
         current_process = None
 
-    if current_secondary_process is not None and current_secondary_process.poll() is None:
-        current_secondary_process.terminate()
-        current_secondary_process.wait()
-        current_secondary_process = None
+    if current_auxiliary_process is not None and current_auxiliary_process.poll() is None:
+        current_auxiliary_process.terminate()
+        current_auxiliary_process.wait()
+        current_auxiliary_process = None
 
 if __name__ == "__main__":
     test_plan_file = "test_plan.json"
